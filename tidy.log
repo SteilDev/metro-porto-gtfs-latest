@@ -6,5 +6,6 @@ Removing redundant shapes... done. (-2 shapes [-16.67%])
 Removing redundant routes... done. (-0 routes [-0.00%])
 Removing service duplicates... done. (-15 services [-78.94%])
 Minimizing services... done. (-20 calendar_dates.txt entries [-44.44%], +0 calendar.txt entries [+0.00%])
+Minimizing frequencies / stop times... done. (+880 frequencies, -2733 trips [-92.93%])
 Minimizing ids... done.
 Outputting GTFS feed to 'gtfs_metroporto_latest.zip'... done.
