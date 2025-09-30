@@ -13,44 +13,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout your repo
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
           persist-credentials: false
 
+      # 2. Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
+      # 3. Install Python dependencies
       - name: Install Python dependencies
         run: pip install requests beautifulsoup4
 
+      # 4. Download latest GTFS feeds
       - name: Download latest GTFS feeds
         run: python download_gtfs.py
 
+      # 5. Set up Go
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.22'
 
-      - name: Install gtfstidy
-        run: go install github.com/patrickbr/gtfstidy@latest
-
-      - name: Run gtfstidy to clean and merge feeds
+      # 6. Clone gtfstidy and build
+      - name: Clone and build gtfstidy
         run: |
-          export PATH=$PATH:$HOME/go/bin
-          gtfstidy -SCRmcdsOeD gtfs_metroporto_latest.zip -o gtfs_metroporto_latest.zip > tidy.log
+          git clone https://github.com/patrickbr/gtfstidy.git
+          cd gtfstidy
+          make build
 
+      # 7. Add gtfstidy binary to PATH
+      - name: Add gtfstidy to PATH
+        run: echo "${{ github.workspace }}/gtfstidy" >> $GITHUB_PATH
 
+      # 8. Run gtfstidy to clean feeds
+      - name: Run gtfstidy
+        run: gtfstidy -SCRmTcdsOeD gtfs_metroporto_latest.zip -o gtfs_metroporto_latest.zip > tidy.log
+
+      # 9. Commit and push cleaned feed
       - name: Commit and push cleaned feed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add gtfs_metroporto_latest.zip
-          git add tidy.log
+          git add gtfs_metroporto_latest.zip tidy.log
           git commit -m "Update and clean merged GTFS feed" || echo "No changes to commit"
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
