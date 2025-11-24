@@ -1,4 +1,4 @@
-name: Update and Clean TPER GTFS
+name: Update and Clean Metro Porto GTFS
 
 permissions:
   contents: write
